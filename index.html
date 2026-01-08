@@ -20,6 +20,7 @@ body {
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
+    transition: background-image 0.5s ease; /* smooth bg change */
 }
 
 body::before {
@@ -135,7 +136,7 @@ section {
     display: flex;
     gap: 15px;
     transition: transform 0.4s ease;
-    will-change: transform; /* small performance boost */
+    will-change: transform;
 }
 
 .slider-track img {
@@ -145,6 +146,22 @@ section {
     border-radius: 12px;
     cursor: pointer;
     flex-shrink: 0;
+}
+
+/* UPLOAD BUTTON */
+#uploadImage {
+    width: 200px;
+    height: 150px;
+    border: 2px dashed white;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.3);
+    color: white;
+    font-size: 48px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
 }
 
 @media (max-width: 900px) {
@@ -204,40 +221,50 @@ section {
     <button class="slider-btn" id="next">❯</button>
 </div>
 
+<!-- Upload Button -->
+<button id="uploadImage">+</button>
+<input type="file" id="fileInput" accept="image/*" style="display:none">
+
 </section>
 
 <footer>
     <p>OZ Browser</p>
-    <p>© 2026  Free desing.</p>
+    <p>© 2026 Free design.</p>
 </footer>
 
 <script>
-/* BACKGROUND CHANGE + PRELOAD */
 const body = document.body;
-const sliderImgs = document.querySelectorAll(".slider-track img");
-
-// Preload all images for instant display
-sliderImgs.forEach(img => {
-    new Image().src = img.src; // preload thumbnail/full image
-});
-
-// Set initial background
-if (sliderImgs.length) {
-    body.style.backgroundImage = `url(${sliderImgs[0].src})`;
-}
-
-// Change background on click
-sliderImgs.forEach(img => {
-    img.addEventListener("click", () => {
-        body.style.backgroundImage = `url(${img.src})`;
-    });
-});
-
-/* SLIDER LOGIC */
 const slider = document.getElementById("slider");
 const prev = document.getElementById("prev");
 const next = document.getElementById("next");
+const toggleBtn = document.getElementById("toggleImages");
+const wall = document.querySelector(".wallper");
+const uploadBtn = document.getElementById("uploadImage");
+const fileInput = document.getElementById("fileInput");
 
+let sliderImgs = Array.from(document.querySelectorAll(".slider-track img"));
+
+// ---------------------
+// CLICK TO CHANGE BACKGROUND
+// ---------------------
+function addClickBg(img) {
+    img.addEventListener("click", () => {
+        body.style.backgroundImage = `url('${img.src}')`;
+    });
+}
+
+// Preload and add click for existing images
+sliderImgs.forEach(img => {
+    new Image().src = img.src;
+    addClickBg(img);
+});
+
+// Set initial background
+if(sliderImgs.length) body.style.backgroundImage = `url('${sliderImgs[0].src}')`;
+
+// ---------------------
+// SLIDER LOGIC
+// ---------------------
 let index = 0;
 const visible = 4;
 
@@ -249,51 +276,71 @@ function updateSlider() {
     slider.style.transform = `translateX(-${index * imgStep()}px)`;
 }
 
-next.onclick = (e) => {
+next.addEventListener("click", e => {
     e.stopPropagation();
     const max = sliderImgs.length - visible;
-    if (index < max) {
-        index++;
-        updateSlider();
-    }
-};
+    if (index < max) index++;
+    updateSlider();
+});
 
-prev.onclick = (e) => {
+prev.addEventListener("click", e => {
     e.stopPropagation();
-    if (index > 0) {
-        index--;
-        updateSlider();
-    }
-};
+    if (index > 0) index--;
+    updateSlider();
+});
 
-/* TOGGLE + BACKGROUND CLICK */
-const toggleBtn = document.getElementById("toggleImages");
-const wall = document.querySelector(".wallper");
-
-toggleBtn.onclick = (e) => {
+// ---------------------
+// TOGGLE SLIDER
+// ---------------------
+toggleBtn.addEventListener("click", e => {
     e.stopPropagation();
     wall.classList.toggle("hidden");
     toggleBtn.classList.toggle("closed");
-};
+});
 
-// Click outside slider → hide slider
 document.body.addEventListener("click", () => {
-    if (!wall.classList.contains("hidden")) {
+    if(!wall.classList.contains("hidden")){
         wall.classList.add("hidden");
         toggleBtn.classList.add("closed");
     }
 });
 
-// Prevent hide when clicking inside slider
 wall.addEventListener("click", e => e.stopPropagation());
 
-/* SEARCH */
+// ---------------------
+// GOOGLE SEARCH
+// ---------------------
 document.getElementById("search").addEventListener("keydown", e => {
-    if (e.key === "Enter" && e.target.value.trim()) {
-        location.href =
-        "https://www.google.com/search?q=" +
-        encodeURIComponent(e.target.value.trim());
+    if(e.key === "Enter" && e.target.value.trim()) {
+        location.href = "https://www.google.com/search?q=" + encodeURIComponent(e.target.value.trim());
     }
+});
+
+// ---------------------
+// UPLOAD CUSTOM IMAGE
+// ---------------------
+uploadBtn.addEventListener("click", () => fileInput.click());
+
+fileInput.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = event => {
+        // 1. Set background immediately
+        body.style.backgroundImage = `url('${event.target.result}')`;
+
+        // 2. Add image to slider
+        const img = document.createElement("img");
+        img.src = event.target.result;
+
+        img.onload = () => {
+            slider.appendChild(img);
+            sliderImgs.push(img);
+            addClickBg(img); // attach click for future
+        };
+    };
+    reader.readAsDataURL(file);
 });
 </script>
 </body>
