@@ -4,6 +4,10 @@ OZ Browser is a lightweight, customizable web search interface with dynamic back
 
 ---
 
+
+https://github.com/user-attachments/assets/ba298f40-f7fa-4ee7-85fd-2717153377e7
+
+
 ---
 ## Features
 
