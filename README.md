@@ -4,6 +4,7 @@ OZ Browser is a lightweight, customizable web search interface with dynamic back
 
 ---
 
+---
 ## Features
 
 - **Google Search**: Type a query in the input box and press Enter to search Google.
