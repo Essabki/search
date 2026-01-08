@@ -28,7 +28,5 @@ You can run the project locally by opening `index.html` in any modern web browse
 3. Open `index.html` in a browser.
 
 ```bash
-git clone <repository-url>
-cd oz-browser
-open index.html
+https://github.com/Essabki/search.git
 
