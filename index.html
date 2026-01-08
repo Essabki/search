@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OZ Browser</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.13);
+    z-index: 0;
+}
+
+header, section, footer {
+    position: relative;
+    z-index: 1;
+}
+
+header, footer {
+    background: #000000af;
+    backdrop-filter: blur(8px);
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+}
+footer{
+    background: #00000046;
+}
+section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* SEARCH */
+.search-box {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+}
+
+.search-box input {
+    width: 100%;
+    height: 50px;
+    padding: 12px 15px 12px 45px;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    background: #000000af;
+    backdrop-filter: blur(8px);
+    color: white;
+    font-size: 16px;
+}
+
+.google-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    z-index: 1;
+}
+
+/* TOGGLE */
+#toggleImages {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+#toggleImages svg {
+    width: 32px;
+    height: 32px;
+    transition: transform 0.25s ease;
+}
+
+#toggleImages.closed svg {
+    transform: rotate(180deg);
+}
+
+/* SLIDER */
+.wallper {
+    width: 100%;
+    max-width: 920px;
+    background: #000000af;
+    backdrop-filter: blur(8px);
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wallper.hidden {
+    display: none;
+}
+
+.slider-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.slider-viewport {
+    overflow: hidden;
+    width: 860px; /* 4 images visible */
+}
+
+.slider-track {
+    display: flex;
+    gap: 15px;
+    transition: transform 0.4s ease;
+    will-change: transform; /* small performance boost */
+}
+
+.slider-track img {
+    width: 200px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+    .slider-viewport {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <p>Design</p>
+    <p>Help</p>
+</header>
+
+<section>
+
+<div class="search-box">
+    <img src="https://www.google.com/favicon.ico" class="google-icon">
+    <input id="search" type="text" placeholder="Search Google">
+</div>
+
+<button id="toggleImages">
+    <svg viewBox="0 0 24 24">
+        <path d="M7 10l5 5 5-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+    </svg>
+</button>
+
+<!-- SLIDER -->
+<div class="wallper hidden">
+    <button class="slider-btn" id="prev">❮</button>
+
+    <div class="slider-viewport">
+        <div class="slider-track" id="slider">
+         <img src="pic/pexels-iriser-1366957.jpg">
+         <img src="pic/pexels-joshkjack-135018.jpg">
+         <img src="pic/pexels-cmonphotography-1809644.jpg">
+         <img src="pic/pexels-iriser-1408221.jpg">
+         <img src="pic/pexels-maoriginalphotography-1485894.jpg">
+         <img src="pic/pexels-photograph-1252508.jpg">
+         <img src="pic/pexels-pixabay-414144.jpg">
+         <img src="pic/pexels-pixabay-50594.jpg">
+         <img src="pic/pexels-rompalliharish-1698618.jpg">
+         <img src="pic/pexels-pok-rie-33563-982263.jpg">
+         <img src="pic/phantom-blade-zero-3840x2160-25028.jpg">   
+         <img src="pic/pexels-christian-heitz-285904-842711.jpg">
+        </div>
+    </div>
+
+    <button class="slider-btn" id="next">❯</button>
+</div>
+
+</section>
+
+<footer>
+    <p>OZ Browser</p>
+    <p>Web Design</p>
+</footer>
+
+<script>
+/* BACKGROUND CHANGE + PRELOAD */
+const body = document.body;
+const sliderImgs = document.querySelectorAll(".slider-track img");
+
+// Preload all images for instant display
+sliderImgs.forEach(img => {
+    new Image().src = img.src; // preload thumbnail/full image
+});
+
+// Set initial background
+if (sliderImgs.length) {
+    body.style.backgroundImage = `url(${sliderImgs[0].src})`;
+}
+
+// Change background on click
+sliderImgs.forEach(img => {
+    img.addEventListener("click", () => {
+        body.style.backgroundImage = `url(${img.src})`;
+    });
+});
+
+/* SLIDER LOGIC */
+const slider = document.getElementById("slider");
+const prev = document.getElementById("prev");
+const next = document.getElementById("next");
+
+let index = 0;
+const visible = 4;
+
+function imgStep() {
+    return sliderImgs[0].offsetWidth + 15;
+}
+
+function updateSlider() {
+    slider.style.transform = `translateX(-${index * imgStep()}px)`;
+}
+
+next.onclick = (e) => {
+    e.stopPropagation();
+    const max = sliderImgs.length - visible;
+    if (index < max) {
+        index++;
+        updateSlider();
+    }
+};
+
+prev.onclick = (e) => {
+    e.stopPropagation();
+    if (index > 0) {
+        index--;
+        updateSlider();
+    }
+};
+
+/* TOGGLE + BACKGROUND CLICK */
+const toggleBtn = document.getElementById("toggleImages");
+const wall = document.querySelector(".wallper");
+
+toggleBtn.onclick = (e) => {
+    e.stopPropagation();
+    wall.classList.toggle("hidden");
+    toggleBtn.classList.toggle("closed");
+};
+
+// Click outside slider → hide slider
+document.body.addEventListener("click", () => {
+    if (!wall.classList.contains("hidden")) {
+        wall.classList.add("hidden");
+        toggleBtn.classList.add("closed");
+    }
+});
+
+// Prevent hide when clicking inside slider
+wall.addEventListener("click", e => e.stopPropagation());
+
+/* SEARCH */
+document.getElementById("search").addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.value.trim()) {
+        location.href =
+        "https://www.google.com/search?q=" +
+        encodeURIComponent(e.target.value.trim());
+    }
+});
+</script>
+</body>
+</html>
